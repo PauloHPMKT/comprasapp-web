@@ -1,20 +1,34 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import FormLogin from '../components/FormLogin/index.vue';
 import RegisterForm from '../components/RegisterForm/index.vue';
 import VerticalLogo from '../assets/img/Logo-vertical.png';
 
+const router = useRouter();
 const showLogin = ref(true);
 
 const welcomeAccountMessage = computed(() => {
   return showLogin.value
-    ? 'Acesse sua conta para continuar'
-    : 'e organize suas compras de forma prática e inteligente';
-})
+  ? 'Acesse sua conta para continuar'
+  : 'e organize suas compras de forma prática e inteligente';
+});
 
-const toggleForm = () => {
+const useremail = computed(() => localStorage.getItem('useremail') ?? undefined);
+
+function toggleForm() {
   showLogin.value = !showLogin.value;
 };
+
+function handleUserCreated() {
+  showLogin.value = true;
+}
+
+function handleSuccessedLogin() {
+  localStorage.removeItem('useremail');
+  router.push({ name: 'dashboard' });
+}
+
 </script>
 
 <template>
@@ -32,10 +46,12 @@ const toggleForm = () => {
       </div>
 
       <div v-if="showLogin">
-        <FormLogin />
+        <FormLogin
+          @successed-login="handleSuccessedLogin"
+          :useremaillogin="useremail" />
       </div>
       <div v-else>
-        <RegisterForm />
+        <RegisterForm @user-created="handleUserCreated" />
       </div>
 
       <div class="flex justify-center items-center mt-8">

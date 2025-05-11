@@ -2,8 +2,14 @@
 import { reactive } from 'vue';
 import MainButton from '../MainButton/index.vue';
 import { useCreateUser } from '../../composables/useCreateUser';
+import { useValidation } from '../../composables/useValidation';
+import type { UserModel } from '../../services/user/domain/models/create-user';
+
+const emit = defineEmits(['user-created']);
 
 const { createUser } = useCreateUser();
+const { formsValidation, validationMessage, lengthValue } = useValidation();
+
 const createUserData = reactive({
   name: '',
   email: '',
@@ -12,7 +18,29 @@ const createUserData = reactive({
 });
 
 async function submitData() {
-  await createUser(createUserData);
+  const params = createUserData as UserModel.ToCreate
+
+  const validationResult = formsValidation(params);
+  if (typeof validationResult === 'string') {
+    alert(validationMessage.value);
+    return;
+  }
+
+  const nameLength = lengthValue(params.name);
+  if (nameLength) {
+    alert(validationMessage.value)
+    return;
+  }
+
+  const result = await createUser(params);
+  if ('error' in result) {
+    console.log('Usuário criado com sucesso', result.error);
+    alert('Usuario ja existe') // replicar erro correto vindo do backend
+    return;
+  }
+
+  localStorage.setItem('useremail', result.email)
+  emit('user-created');
 }
 
 </script>
