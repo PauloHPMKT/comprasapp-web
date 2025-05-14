@@ -75,6 +75,6 @@ async function submitData() {
       >
     </div>
 
-    <MainButton class="mb-4 bg-red-600">Criar conta</MainButton>
+    <MainButton class="mb-4 bg-red-600 w-full">Criar conta</MainButton>
   </form>
 </template>
