@@ -6,7 +6,7 @@ import BaseInput from '../BaseInput/index.vue';
 const emit = defineEmits(['successed-login']);
 
 const loginUserData = reactive({
-  email: 'teste',
+  email: '',
   password: ''
 })
 
