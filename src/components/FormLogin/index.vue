@@ -1,16 +1,12 @@
 <script setup lang="ts">
-import { onMounted, reactive } from 'vue';
+import { reactive } from 'vue';
 import MainButton from '../MainButton/index.vue';
+import BaseInput from '../BaseInput/index.vue';
 
-interface userEmailProps {
-  useremaillogin?: string;
-}
-
-const props = defineProps<userEmailProps>();
 const emit = defineEmits(['successed-login']);
 
 const loginUserData = reactive({
-  email: '',
+  email: 'teste',
   password: ''
 })
 
@@ -18,29 +14,20 @@ function handleLogin() {
   console.log('Login data:', loginUserData);
   emit('successed-login');
 }
-
-onMounted(() => {
-  if (props.useremaillogin) {
-    loginUserData.email = props.useremaillogin;
-  }
-});
 </script>
 
 <template>
   <form @submit.prevent="handleLogin" class="w-full">
     <div class="flex flex-col gap-3">
-      <input
-        type="text"
+      <BaseInput
         placeholder="Insira seu e-mail"
         v-model="loginUserData.email"
-        class="border border-gray-300 rounded-lg px-2 h-12 w-full"
-      >
-      <input
-        type="password"
-        placeholder="Senha"
+      />
+      <BaseInput
+        :isPassword="true"
+        placeholder="Insira sua senha"
         v-model="loginUserData.password"
-        class="border border-gray-300 rounded-lg px-2 h-12 w-full"
-      >
+      />
     </div>
 
     <div class="flex justify-between mt-3 mb-8">

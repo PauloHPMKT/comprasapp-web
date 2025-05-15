@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
+import BaseInput from '../BaseInput/index.vue';
 import MainButton from '../MainButton/index.vue';
 import { useCreateUser } from '../../composables/useCreateUser';
 import { useValidation } from '../../composables/useValidation';
@@ -34,7 +35,6 @@ async function submitData() {
 
   const result = await createUser(params);
   if ('error' in result) {
-    console.log('Usuário criado com sucesso', result.error);
     alert('Usuario ja existe') // replicar erro correto vindo do backend
     return;
   }
@@ -48,31 +48,24 @@ async function submitData() {
 <template>
   <form @submit.prevent="submitData" class="w-full">
     <div class="flex flex-col gap-3 mb-8">
-      <input
-        type="text"
-
+      <BaseInput
         placeholder="Insira seu nome"
         v-model="createUserData.name"
-        class="border border-gray-300 rounded-lg px-2 h-12 w-full"
-      >
-      <input
-        type="text"
+      />
+      <BaseInput
         placeholder="Insira seu e-mail"
-        class="border border-gray-300 rounded-lg px-2 h-12 w-full"
         v-model="createUserData.email"
-      >
-      <input
-        type="password"
-        placeholder="Senha"
-        class="border border-gray-300 rounded-lg px-2 h-12 w-full"
+      />
+      <BaseInput
+        :isPassword="true"
+        placeholder="Insira sua senha"
         v-model="createUserData.password"
-      >
-      <input
-        type="password"
+      />
+      <BaseInput
+        :isPassword="true"
         placeholder="Confirme sua senha"
-        class="border border-gray-300 rounded-lg px-2 h-12 w-full"
         v-model="createUserData.passwordConfirmation"
-      >
+      />
     </div>
 
     <MainButton class="mb-4 bg-red-600 w-full">Criar conta</MainButton>
