@@ -1,19 +1,14 @@
 <script setup lang="ts">
-import { twMerge } from 'tailwind-merge';
+import { useStyles } from '../../composables/useStyles';
 
-interface MainButtonProps {
-  class?: string;
-}
-
-const props = defineProps<MainButtonProps>();
+const { mergeStyles, attrs } = useStyles();
 </script>
 
 <template>
   <button
-    v-bind="$attrs"
-    :class="twMerge(
-      'flex items-center justify-center gap-2 text-white font-semibold rounded-lg px-4 py-2',
-      props.class
+    v-bind="attrs"
+    :class="mergeStyles(
+      'flex items-center justify-center gap-2 text-white font-semibold rounded-lg px-4 py-2 cursor-pointer'
     )"
   >
     <slot></slot>

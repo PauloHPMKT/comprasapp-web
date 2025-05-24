@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { ref, watch } from "vue";
 import { Icon } from "@iconify/vue";
+import { useStyles } from "../../composables/useStyles";
 
 interface InputFieldProps {
   placeholder: string;
@@ -7,10 +9,9 @@ interface InputFieldProps {
   modelValue?: string;
 }
 
+const { mergeStyles, attrs } = useStyles();
 const props = defineProps<InputFieldProps>();
 const emit = defineEmits(["update:modelValue"]);
-
-import { ref, watch } from "vue";
 
 const inputType = ref(props.isPassword ? "password" : "text");
 
@@ -32,9 +33,9 @@ function updateValue(e: Event) {
 </script>
 
 <template>
-  <div class="flex border border-gray-300 rounded-lg px-2 h-12 items-center">
+  <div :class="mergeStyles('flex border border-gray-300 rounded-lg px-2 h-12 items-center')">
     <input
-      v-bind="$attrs"
+      v-bind="attrs"
       :type="inputType"
       :placeholder="placeholder"
       :value="modelValue"
