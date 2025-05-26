@@ -43,12 +43,14 @@ onMounted(() => {
         </div>
       </div>
 
-      <div v-if="showLogin">
-        <FormLogin />
-      </div>
-      <div v-else>
-        <RegisterForm @user-created="handleUserCreated" />
-      </div>
+      <transition name="fade" mode="out-in">
+        <div v-if="showLogin">
+          <FormLogin />
+        </div>
+        <div v-else>
+          <RegisterForm @user-created="handleUserCreated" />
+        </div>
+      </transition>
 
       <div class="flex justify-center items-center mt-8">
         <span

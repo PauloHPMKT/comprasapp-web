@@ -8,6 +8,10 @@ const hasTitleGuard = createRouteGuard(
 
 const routes = [
   {
+    path: '/',
+    redirect: { name: 'app' }
+  },
+  {
     path: '/account',
     name: 'account',
     component: () => import('../pages/Account.vue')
@@ -28,6 +32,11 @@ const routes = [
         name: 'purchase-list',
         beforeEnter: hasTitleGuard,
         component: () => import('../pages/CreatePurchaseList.vue')
+      },
+      {
+        path: 'categories',
+        name: 'categories',
+        component: () => import('../pages/Categories.vue')
       }
     ]
   }

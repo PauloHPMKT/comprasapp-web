@@ -7,6 +7,7 @@ interface InputFieldProps {
   placeholder: string;
   isPassword?: boolean;
   modelValue?: string;
+  hasIcon?: boolean;
 }
 
 const { mergeStyles, attrs } = useStyles();
@@ -49,8 +50,9 @@ function updateValue(e: Event) {
     >
       <Icon
         :icon="`tabler:${inputType === 'password' ? 'eye-off' : 'eye'}`"
-        class="flex items-center w-10"
+        class="flex items-center w-11"
       />
     </div>
+    <slot v-if="hasIcon"></slot>
   </div>
 </template>

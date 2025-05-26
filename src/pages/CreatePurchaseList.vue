@@ -5,7 +5,10 @@ import { useRouter } from 'vue-router';
 import MainButton from '../components/MainButton/index.vue';
 import BaseInput from '../components/BaseInput/index.vue';
 import SelectBox from '../components/SelectBox/index.vue';
+import NewCategory from '../components/NewCategory/index.vue';
 import emptyList from '../assets/img/img-lista-vazia.png';
+import type { PurchaseList } from '../types/Purchase-list';
+import { useCategories } from '../composables/useCategories';
 
 interface Item {
   localId: number;
@@ -17,9 +20,10 @@ interface Item {
   isEditingPrice: boolean;
 }
 
+const { createCategory } = useCategories();
 const router = useRouter();
 const listTitle = ref(localStorage.getItem('purchase-list-title'));
-const newItem = reactive({
+const newItem = reactive<PurchaseList.ItemToAdd>({
   name: '',
   quantity: '',
   category: ''
@@ -27,6 +31,7 @@ const newItem = reactive({
 const listProducts = reactive<Item[]>([]);
 const formatedValue = ref('R$ 0,00');
 const openSelectBox = ref<typeof SelectBox | null>(null)
+const newCategory = ref<typeof NewCategory | null>(null);
 
 const categories = [
   { id: 1, name: 'Alimentos', icon: '🍎' },
@@ -40,6 +45,11 @@ const categories = [
   { id: 9, name: 'Móveis', icon: '🛋️' },
   { id: 10, name: 'Esportes', icon: '⚽' }
 ];
+
+// adicionar função a um watch
+watch(listProducts, () => {
+  calculateTotalPriceItems();
+}, { deep: true });
 
 function backToDashboard() {
   localStorage.removeItem('purchase-list-title');
@@ -58,6 +68,8 @@ function addItem() {
       isEditingPrice: false
     }
     listProducts.push(itemToAdd);
+    console.log(listProducts);
+    // enviar o item para o banco de dados
     newItem.name = '';
     newItem.quantity = '';
     newItem.category = '';
@@ -87,14 +99,19 @@ function handleSetItem(id: number, field: keyof Item, value: string) {
   item.isEditingPrice = false;
 }
 
+function selectCategory(id: any) {
+  const category = categories.find(category => category.id === id);
+  if (!category) return;
+  newItem.category = category.icon;
+}
+
 function openSelectBoxModal() {
   openSelectBox.value?.isOpen();
 }
 
-// adicionar função a um watch
-watch(listProducts, () => {
-  calculateTotalPriceItems();
-}, { deep: true });
+function openNewCategoryModal() {
+  newCategory.value?.isOpen();
+}
 
 function calculateTotalPriceItems () {
   const total = listProducts.reduce((total, item) => {
@@ -104,6 +121,13 @@ function calculateTotalPriceItems () {
   }, 0);
   return formatedValue.value = total.toFixed(2)
 };
+
+async function addNewCategory(data: any) {
+  console.log('Nova categoria:', data);
+  const response = await createCategory(data);
+  console.log(response);
+  openSelectBoxModal();
+}
 
 </script>
 
@@ -137,23 +161,29 @@ function calculateTotalPriceItems () {
         />
         <div
           @click="openSelectBoxModal"
-          class="relative flex items-center justify-center border-2 border-gray-300 rounded-lg px-2 h-11 w-[25%]"
+          class="relative flex items-center justify-center cursor-pointer border-2 border-gray-300 rounded-lg px-2 h-11 w-[25%]"
         >
           <span>
             {{ newItem.category || 'Categoria' }}
           </span>
-          <SelectBox
-            :categories="categories"
-            ref="openSelectBox"
-            class="absolute top-11 left-0 z-10 w-[350px] bg-white rounded-2xl shadow-lg"
-          />
         </div>
+        <SelectBox
+          :categories="categories"
+          @select-category="selectCategory"
+          @category-modal="openNewCategoryModal"
+          ref="openSelectBox"
+        />
+
+        <NewCategory
+          @create-category="addNewCategory"
+          ref="newCategory"
+        />
 
         <MainButton
           @click="addItem"
           class="bg-red-600 flex items-center justify-center rounded-lg h-11 w-fit"
         >
-          <Icon icon="cuida:plus-outline" class="w-6 h-6 text-bold text-white" />
+          <Icon icon="mingcute:plus-fill" width="24" height="24" />
           Adicionar
         </MainButton>
       </div>
@@ -174,8 +204,8 @@ function calculateTotalPriceItems () {
           class="flex justify-between items-center bg-white h-16 w-full rounded-lg shadow px-4 py-3"
         >
           <div class="flex items-center justify-between w-[80%]">
-            <div class="flex items-center gap-8 w-[10%] bg-red-600">
-              <p class="w-6 h-6 text-gray-500">{{ product.category }}</p>
+            <div class="flex items-center gap-8 w-[10%]">
+              <p class="w-12 h-12 text-[30px] text-gray-500">{{ product.category }}</p>
             </div>
             <div class="w-[60%] flex items-center gap-4">
               <p class="font-semibold">{{ product.name }}</p>
@@ -185,7 +215,7 @@ function calculateTotalPriceItems () {
                 v-if="product.isEditing"
                 v-model="product.quantity"
                 placeholder="0"
-                class="w-full"
+                class="w-full h-11"
                 @keyup.enter="handleSetItem(product.localId, 'quantity', product.quantity)"
               />
               <span
@@ -203,7 +233,7 @@ function calculateTotalPriceItems () {
               v-if="product.isEditingPrice"
               v-model="product.price"
               placeholder="R$ 0,00"
-              class="w-[50%]"
+              class="w-[50%] h-11"
               @keyup.enter="handleSetItem(product.localId, 'price', product.price)"
             />
             <MainButton
@@ -211,7 +241,7 @@ function calculateTotalPriceItems () {
               @click="toogleEditField(product.localId, 'price')"
               class="flex items-center justify-center rounded-lg w-fit h-11 bg-red-700"
             >
-              R$ <Icon icon="cuida:plus-outline" class="w-4 h-4 text-white" />
+              R$ <Icon icon="cuida:plus-outline" class="w-4 h-4 font-bold text-white" />
             </MainButton>
             <div
               v-else
@@ -230,7 +260,7 @@ function calculateTotalPriceItems () {
           <p class="font-normal">Total de itens: 1</p>
           <h6 class="font-semibold">Valor total {{ formatedValue }}</h6>
         </div>
-        <MainButton class="bg-red-600 flex items-center justify-center rounded-lg w-fit h-12">
+        <MainButton class="bg-red-600 flex items-center justify-center rounded-lg w-fit h-11">
           Salvar Lista
         </MainButton>
       </div>
