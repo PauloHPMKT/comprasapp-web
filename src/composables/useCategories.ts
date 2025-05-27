@@ -1,12 +1,14 @@
 import { inject } from "vue";
 import type { CreateCategoryService } from "../services/category/data/create-category";
 import type { Category } from "../services/category/domain/entities/Category";
+import type { GetCategoriesService } from "../services/category/data/get-categories";
 
 export const useCategories = () => {
   const categoryService = inject<CreateCategoryService>("createCategoryProvider");
+  const getCategoriesService = inject<GetCategoriesService>("getCategoriesProvider");
 
-  if (!categoryService) {
-    throw new Error("User service not provided");
+  if (!categoryService || !getCategoriesService) {
+    throw new Error("Category service not provided");
   }
 
   /**
@@ -28,5 +30,21 @@ export const useCategories = () => {
     }
   }
 
-  return { createCategory }
+  /**
+   * GetCategories retrieves a list of categories.
+   * @returns - The list of categories or an error message.
+   */
+  async function getCategories(): Promise<Category[] | { error: boolean; message: string }> {
+    try {
+      const result = await getCategoriesService?.execute();
+      return result;
+    } catch (error) {
+      return {
+        error: true,
+        message: (error as Error).message || "Falha ao carregar as categorias",
+      }
+    }
+  }
+
+  return { createCategory, getCategories }
 }

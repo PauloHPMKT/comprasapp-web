@@ -6,7 +6,7 @@ import MainButton from '../MainButton/index.vue';
 import Overlay from '../Overlay/index.vue';
 
 interface CategoryProps {
-  id: number;
+  id: string;
   name: string;
   icon: string;
 }
@@ -17,7 +17,7 @@ const emit = defineEmits(['select-category', 'category-modal']);
 const isModalOpen = ref(false);
 //const showCreateNewCategoryModal = ref<typeof NewCategory | null>(null);
 
-function handleSelectCategory(categoryId: number) {
+function handleSelectCategory(categoryId: string) {
   // Emitir evento para o componente pai com a categoria selecionada
   emit('select-category', categoryId);
   isModalOpen.value = false;

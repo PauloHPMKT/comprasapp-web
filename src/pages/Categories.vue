@@ -1,28 +1,17 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { Icon } from '@iconify/vue';
 import MainButton from '../components/MainButton/index.vue';
 import BaseInput from '../components/BaseInput/index.vue';
 import NewCategory from '../components/NewCategory/index.vue';
 import { useCategories } from '../composables/useCategories';
+import type { Category } from '../services/category/domain/entities/Category';
 
 const router = useRouter();
-const { createCategory } = useCategories();
+const { createCategory, getCategories } = useCategories();
 
-const categories = ref([
-  { id: 1, name: 'Alimentos', icon: '🍎' },
-  { id: 2, name: 'Bebidas', icon: '🥤' },
-  { id: 3, name: 'Limpeza', icon: '🧼' },
-  { id: 4, name: 'Higiene', icon: '🧴' },
-  { id: 5, name: 'Eletrônicos', icon: '💻' },
-  { id: 6, name: 'Roupas', icon: '👗' },
-  { id: 7, name: 'Brinquedos', icon: '🧸' },
-  { id: 8, name: 'Móveis', icon: '🛋️' },
-  { id: 9, name: 'Esportes', icon: '⚽' },
-  { id: 10, name: 'Outros', icon: '📦' },
-]);
-
+const categories = ref<Category[]>([]);
 const showCreateNewCategoryModal = ref<typeof NewCategory | null>(null);
 
 function backToDashboard() {
@@ -42,6 +31,15 @@ async function addNewCategory(data: any) {
 function teste() {
   alert('teste');
 }
+
+onMounted(async () => {
+  const response = await getCategories();
+  if ('error' in response) {
+    return response.error;
+  }
+
+  categories.value.push(...response);
+})
 </script>
 
 <template>

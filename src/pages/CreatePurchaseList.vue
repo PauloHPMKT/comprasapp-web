@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
 import { Icon } from '@iconify/vue';
 import { useRouter } from 'vue-router';
 import MainButton from '../components/MainButton/index.vue';
@@ -8,6 +8,7 @@ import SelectBox from '../components/SelectBox/index.vue';
 import NewCategory from '../components/NewCategory/index.vue';
 import emptyList from '../assets/img/img-lista-vazia.png';
 import type { PurchaseList } from '../types/Purchase-list';
+import type { Category } from '../services/category/domain/entities/Category';
 import { useCategories } from '../composables/useCategories';
 
 interface Item {
@@ -20,7 +21,7 @@ interface Item {
   isEditingPrice: boolean;
 }
 
-const { createCategory } = useCategories();
+const { createCategory, getCategories } = useCategories();
 const router = useRouter();
 const listTitle = ref(localStorage.getItem('purchase-list-title'));
 const newItem = reactive<PurchaseList.ItemToAdd>({
@@ -33,18 +34,7 @@ const formatedValue = ref('R$ 0,00');
 const openSelectBox = ref<typeof SelectBox | null>(null)
 const newCategory = ref<typeof NewCategory | null>(null);
 
-const categories = [
-  { id: 1, name: 'Alimentos', icon: '🍎' },
-  { id: 2, name: 'Bebidas', icon: '🥤' },
-  { id: 3, name: 'Limpeza', icon: '🧼' },
-  { id: 4, name: 'Higiene', icon: '🧴' },
-  { id: 5, name: 'Outros', icon: '📦' },
-  { id: 6, name: 'Eletrônicos', icon: '💻' },
-  { id: 7, name: 'Roupas', icon: '👗' },
-  { id: 8, name: 'Brinquedos', icon: '🧸' },
-  { id: 9, name: 'Móveis', icon: '🛋️' },
-  { id: 10, name: 'Esportes', icon: '⚽' }
-];
+const categories = ref<Category[]>([]);
 
 // adicionar função a um watch
 watch(listProducts, () => {
@@ -68,7 +58,6 @@ function addItem() {
       isEditingPrice: false
     }
     listProducts.push(itemToAdd);
-    console.log(listProducts);
     // enviar o item para o banco de dados
     newItem.name = '';
     newItem.quantity = '';
@@ -99,8 +88,8 @@ function handleSetItem(id: number, field: keyof Item, value: string) {
   item.isEditingPrice = false;
 }
 
-function selectCategory(id: any) {
-  const category = categories.find(category => category.id === id);
+function selectCategory(id: string) {
+  const category = categories.value.find(category => category.id === id);
   if (!category) return;
   newItem.category = category.icon;
 }
@@ -129,6 +118,14 @@ async function addNewCategory(data: any) {
   openSelectBoxModal();
 }
 
+onMounted(async () => {
+  const response = await getCategories();
+  if ('error' in response) {
+    return response.error;
+  }
+
+  categories.value.push(...response);
+})
 </script>
 
 <template>
