@@ -1,8 +1,17 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { computed, inject, onMounted, ref } from 'vue';
 import FormLogin from '../components/FormLogin/index.vue';
 import RegisterForm from '../components/RegisterForm/index.vue';
 import VerticalLogo from '../assets/img/Logo-vertical.png';
+import type { Account } from '../types/Account';
+import { AuthLoginService } from '../services/auth/data/auth-login-service';
+import { useAuthStore } from '../store/auth';
+
+const authLoginService = inject<AuthLoginService>('authLoginService');
+
+const authStore = useAuthStore();
+const router = useRouter();
 
 const showLogin = ref(true);
 
@@ -18,6 +27,19 @@ function toggleForm() {
 
 function handleUserCreated() {
   showLogin.value = true;
+}
+
+async function handleLogin(params: Account.ToLogin) {
+  try {
+    const { payload, status } = await authLoginService?.execute(params);
+    if (status === 200) {
+      await authStore.setUser(payload);
+      router.push('/app/dashboard');
+    }
+  } catch (error) {
+    console.error(error);
+    return error;
+  }
 }
 
 onMounted(() => {
@@ -45,7 +67,7 @@ onMounted(() => {
 
       <transition name="fade" mode="out-in">
         <div v-if="showLogin">
-          <FormLogin />
+          <FormLogin @handle-login="handleLogin" />
         </div>
         <div v-else>
           <RegisterForm @user-created="handleUserCreated" />

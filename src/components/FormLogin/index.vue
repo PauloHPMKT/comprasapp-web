@@ -2,17 +2,17 @@
 import { reactive } from 'vue';
 import MainButton from '../MainButton/index.vue';
 import BaseInput from '../BaseInput/index.vue';
+import type { Account } from '../../types/Account';
 
-const emit = defineEmits(['successed-login']);
+const emit = defineEmits(['handle-login']);
 
-const loginUserData = reactive({
+const loginUserData = reactive<Account.ToLogin>({
   email: '',
   password: ''
 })
 
 function handleLogin() {
-  console.log('Login data:', loginUserData);
-  emit('successed-login');
+  emit('handle-login', loginUserData);
 }
 </script>
 
@@ -38,6 +38,11 @@ function handleLogin() {
       <small class="text-red-500 cursor-pointer">Esqueci minha senha</small>
     </div>
 
-    <MainButton class="mb-4 bg-red-600 w-full">Entrar</MainButton>
+    <MainButton
+      type="submit"
+      class="mb-4 bg-red-600 w-full"
+    >
+      Entrar
+    </MainButton>
   </form>
 </template>

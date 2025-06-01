@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref, watch } from 'vue';
 import { Icon } from '@iconify/vue';
-import { useRouter } from 'vue-router';
+import PageHeaderTitle from '../components/PageHeaderTitle/index.vue';
 import MainButton from '../components/MainButton/index.vue';
 import BaseInput from '../components/BaseInput/index.vue';
 import SelectBox from '../components/SelectBox/index.vue';
@@ -22,7 +22,6 @@ interface Item {
 }
 
 const { createCategory, getCategories } = useCategories();
-const router = useRouter();
 const listTitle = ref(localStorage.getItem('purchase-list-title'));
 const newItem = reactive<PurchaseList.ItemToAdd>({
   name: '',
@@ -33,18 +32,12 @@ const listProducts = reactive<Item[]>([]);
 const formatedValue = ref('R$ 0,00');
 const openSelectBox = ref<typeof SelectBox | null>(null)
 const newCategory = ref<typeof NewCategory | null>(null);
-
 const categories = ref<Category[]>([]);
 
 // adicionar função a um watch
 watch(listProducts, () => {
   calculateTotalPriceItems();
 }, { deep: true });
-
-function backToDashboard() {
-  localStorage.removeItem('purchase-list-title');
-  router.back()
-}
 
 function addItem() {
   // realizar a validação dos campos
@@ -131,7 +124,11 @@ onMounted(async () => {
 <template>
   <div class="h-full">
     <div class="pb-6 border-b-2 border-gray-300">
-      <div class="flex items-center gap-4 mb-6">
+      <PageHeaderTitle
+        :title="listTitle!"
+        subtitle="Insira os dados e preencha sua lista de compras."
+      />
+      <!-- <div class="flex items-center gap-4 mb-6">
         <Icon
           icon="material-symbols:arrow-back-ios-new-rounded"
           class="text-gray-800 font-extrabold cursor-pointer mb-6"
@@ -143,7 +140,7 @@ onMounted(async () => {
           <h2 class="text-3xl font-bold">{{ listTitle }}</h2>
           <p class="text-gray-500">Insira os dados e preencha sua lista de compras</p>
         </div>
-      </div>
+      </div> -->
 
       <div class="flex gap-2 w-[70%]">
         <BaseInput
